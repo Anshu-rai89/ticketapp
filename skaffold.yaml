@@ -17,3 +17,12 @@ build:
         manual:
           - src: "src/**/*.ts"
             dest: .
+      
+    - image: 89910907/ticket-app-client
+      context: client 
+      docker:
+        dockerfile: dockerfile
+      sync:
+        manual:
+          - src: "**/*.js"
+            dest: .
