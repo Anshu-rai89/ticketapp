@@ -2,20 +2,20 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import buildClient from '../apis/buildClient';
 import Navbar from '../components/navbar';
-const AppComponent=({Component,pageProps,currentUser})=>{
+const AppComponent=({Component,pageProps,curruntUser})=>{
    
    return (
       <div>
-         <Navbar currentUser={currentUser}/>
+         <Navbar curruntUser={curruntUser} />
          <Component {...pageProps} />
       </div> 
    )
 }
 
-AppComponent.getInitialProps=(appContext)=>{
+AppComponent.getInitialProps=async (appContext)=>{
 
 const client=buildClient(appContext.ctx);
-const {data} =await client.get('api/users/currentUser');
+const {data} =await client.get('api/users/curruntUser');
 
 let pageProps={};
 if(appContext.Component.getInitialProps){
@@ -25,8 +25,7 @@ if(appContext.Component.getInitialProps){
 return {
    pageProps,
    ...data
-};
 
 }
-
+};
 export default AppComponent;
