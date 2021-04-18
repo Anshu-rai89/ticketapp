@@ -1,47 +1,55 @@
-import express  from 'express';
-import cookieSession from 'cookie-session';
-import 'express-async-errors';
-import {json} from 'body-parser';
-import routes from './routes';
-import {errorHandler} from '../common/src/index';
-import mongoose from 'mongoose';
-const port =process.env.PORT || 3000;
-const app=express();
+import express from "express";
+import "express-async-errors";
+import { json } from "body-parser";
+import mongoose from "mongoose";
+import routes from "./routes";
+import { errorHandler } from "../common/src/index";
+import { natsWrapper } from "./nats-wrapper";
+import { randomBytes } from "crypto";
 
-app.set('trust proxy',true);
+const port = process.env.PORT || 3000;
+const app = express();
+
+app.set("trust proxy", true);
 app.use(json());
-app.use(cookieSession({
-    signed:false,
-    secure:true
-}));
-// using routes 
-app.use('/',routes);
+// using routes
+app.use("/", routes);
 app.use(errorHandler);
 
-const start= async()=>{
+const start = async () => {
+  if (!process.env.JWT_KEY) {
+    throw new Error("JWT KEY Env Not Found");
+  }
+  if (!process.env.MONGO_URI) {
+    throw new Error("MONGO URI Not Found");
+  }
+  try {
+    await natsWrapper.connect(
+      "ticket",
+      randomBytes(4).toString("hex"),
+      "http://nats-srv:4222"
+    );
 
-    if(!process.env.JWT_KEY){
-        throw new Error("JWT KEY Env Not Found");
-        
-    }
-    if(!process.env.MONGO_URI){
-        throw new Error("MONGO URI Not Found");
-        
-    }
-    try{
-        await mongoose.connect(process.env.MONGO_URI,{
-            useNewUrlParser:true,
-            useUnifiedTopology:true,
-            useCreateIndex:true
-        });
+    natsWrapper.client.on("close", () => {
+      process.exit();
+    });
 
-        console.log("Coonected to AUTH DB");
-    }catch(err){
-        console.log(err);
-    }
-    app.listen(port,()=>{
-        console.log(`server is up & running at ${port} !!` );
-    })
-}
+    process.on("SIGINT", () => natsWrapper.client.close());
+    process.on("SIGTERM", () => natsWrapper.client.close());
+
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+    });
+
+    console.log("Coonected to Ticket DB");
+  } catch (err) {
+    console.log(err);
+  }
+  app.listen(port, () => {
+    console.log(`server is up & running at ${port} !!`);
+  });
+};
 
 start();
