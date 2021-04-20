@@ -1,3 +1,6 @@
-[submodule "ticket/common"]
-	path = ticket/common
+[submodule "common"]
+	path = common
+	url = git@github.com:Anshu-rai89/ticketapp-common.git
+[submodule "order/ticketapp-common"]
+	path = order/ticketapp-common
 	url = git@github.com:Anshu-rai89/ticketapp-common.git
