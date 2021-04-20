@@ -1,23 +1,23 @@
 apiVersion: apps/v1
-kind: Deployment 
-metadata: 
-  name: ticket-depl
+kind: Deployment
+metadata:
+  name: order-depl
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ticket
-  template: 
+      app: order
+  template:
     metadata:
       labels:
-        app: ticket
+        app: order
     spec:
       containers:
-        - name: ticket
-          image: 89910907/ticket-app-ticket
+        - name: order
+          image: 89910907/ticket-app-order
           env:
             - name: MONGO_URI
-              value: mongodb://ticket-mongo-svc:27017/ticket
+              value: mongodb://order-mongo-svc:27017/order
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:
@@ -25,17 +25,16 @@ spec:
                   key: JWT_KEY
 
 ---
-
 apiVersion: v1
-kind: Service 
+kind: Service
 
 metadata:
-  name: ticket-svc
+  name: order-svc
 spec:
   selector:
-    app: ticket
+    app: order
   ports:
-    - name: ticket
+    - name: order
       protocol: TCP
       port: 3000
       targetPort: 3000
