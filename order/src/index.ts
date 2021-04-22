@@ -2,7 +2,7 @@ import express from "express";
 import "express-async-errors";
 import { json } from "body-parser";
 import mongoose from "mongoose";
-import { errorHandler } from "../common/src/index";
+import { errorHandler } from "../ticketapp-common/src/index";
 import { natsWrapper } from "./nats-wrapper";
 import { randomBytes } from "crypto";
 
